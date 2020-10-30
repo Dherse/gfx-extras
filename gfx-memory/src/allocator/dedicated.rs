@@ -155,7 +155,10 @@ impl<B: Backend> Allocator<B> for DedicatedAllocator {
         log::trace!("Free block of size: {}", size);
         self.used -= size;
         unsafe {
-            device.unmap_memory(block.memory.raw());
+            if block.memory.is_mappable() {
+                device.unmap_memory(block.memory.raw());
+            }
+            
             device.free_memory(block.memory.into_raw());
         }
         size
